@@ -52,18 +52,13 @@ def test_two_sum_sorted():
 # =============================================================
  
 def remove_duplicates(nums: list[int]) -> int:
-    left, right = 0, 0
-    k = 0
-    n = len(nums)
-    if n > 0:
-        k+=1
-    while right < n:
-        if nums[left] != nums[right]:
-            k += 1
-            left += 1
-            nums[left] = nums[right]
-        right += 1 
-    nums = nums[:k]
+    if not nums:
+        return 0
+    k = 1
+    for right in range(1,len(nums)):
+        if nums[right] != nums[k-1]:
+            nums[k] = nums[right]
+            k+=1
     return k
 
 
@@ -102,7 +97,19 @@ def test_remove_duplicates():
 # =============================================================
  
 def is_palindrome(s: str) -> bool:
-    pass  # your code here
+    left, right = 0, len(s)-1
+    while left < right:
+        while not s[left].isalnum():
+            left += 1
+        while not s[right].isalnum():
+            right -= 1
+        if s[left].lower() != s[right].lower():
+            return False
+        left +=1
+        right -=1
+    return True
+
+    
  
  
 def test_is_palindrome():
@@ -112,7 +119,7 @@ def test_is_palindrome():
  
     # edge cases
     assert is_palindrome("") == True       # empty string
-    assert is_palindrome(" ") == True      # only non-alphanumeric
+    assert is_palindrome("     ") == True      # only non-alphanumeric
  
  
 # =============================================================
@@ -216,8 +223,8 @@ def test_sort_colors():
 # --- run all tests ---
 if __name__ == "__main__":
     #test_two_sum_sorted()
-    test_remove_duplicates()
-    #test_is_palindrome()
+    #test_remove_duplicates()
+    test_is_palindrome()
     #test_max_water()
     #test_three_sum()
     #test_sort_colors()
