@@ -99,9 +99,9 @@ def test_remove_duplicates():
 def is_palindrome(s: str) -> bool:
     left, right = 0, len(s)-1
     while left < right:
-        while not s[left].isalnum():
+        while left < right and not s[left].isalnum():
             left += 1
-        while not s[right].isalnum():
+        while left < right and not s[right].isalnum():
             right -= 1
         if s[left].lower() != s[right].lower():
             return False
@@ -139,7 +139,15 @@ def test_is_palindrome():
 # =============================================================
  
 def max_water(heights: list[int]) -> int:
-    pass  # your code here
+    left, right = 0, len(heights)-1
+    max_area = 0
+    while left < right:
+        max_area = max(max_area, min(heights[left],heights[right]) * (right-left))
+        if heights[left] < heights[right]:
+            left += 1
+        else:
+            right -= 1
+    return max_area
  
  
 def test_max_water():
@@ -224,8 +232,8 @@ def test_sort_colors():
 if __name__ == "__main__":
     #test_two_sum_sorted()
     #test_remove_duplicates()
-    test_is_palindrome()
-    #test_max_water()
+    #test_is_palindrome()
+    test_max_water()
     #test_three_sum()
     #test_sort_colors()
     print("\nAll tests passed!\n")
