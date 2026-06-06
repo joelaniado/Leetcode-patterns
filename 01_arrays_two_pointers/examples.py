@@ -1,10 +1,21 @@
 # Pattern: Two Pointers
 # ---------------------------------------------------------
-# Works on SORTED arrays. Place one pointer at each end and
-# move them inward based on whether the current sum is too
-# high or too low.
+# # When to use:
+#   - sorted array where you need a pair or triplet
+#   - in-place modification with O(1) space
+#   - nested loop brute force that needs to be O(n)
+#   - comparing elements from both ends (palindromes)
+#   - partitioning an array into regions
 #
-# Time: O(n)  |  Space: O(1)
+# Ask yourself:
+#   Can I learn something useful by comparing the leftmost
+#   and rightmost elements? If moving a pointer in one
+#   direction makes the problem more or less solved in a
+#   predictable way, two pointers will work.
+#
+# Complexity target:
+#   Time:  O(n) for single pass, O(n²) when nested (3sum)
+#   Space: O(1) — the whole point is no extra structures
 # ---------------------------------------------------------
 
 # ==========================================================
@@ -174,7 +185,29 @@ def test_max_water():
 # =============================================================
  
 def three_sum(nums: list[int]) -> list[list[int]]:
-    pass  # your code here
+    nums.sort()  
+    triplets = []
+
+    for i in range(len(nums)):
+        if i > 0 and nums[i] == nums[i -1]:
+            continue
+
+        left, right = i + 1, len(nums)-1
+        while left < right:
+            check_sum = nums[i] + nums[left] + nums[right] 
+            if check_sum < 0:
+                left +=1
+            elif check_sum > 0:
+                right -= 1
+            else:
+                triplets.append([nums[i],nums[left],nums[right]])
+                while left < right and nums[left] == nums[left+1]:
+                    left +=1
+                while left < right and nums[right] == nums[right-1]:
+                    right -= 1
+                left +=1
+                right-=1
+    return triplets
  
  
 def test_three_sum():
@@ -233,7 +266,7 @@ if __name__ == "__main__":
     #test_two_sum_sorted()
     #test_remove_duplicates()
     #test_is_palindrome()
-    test_max_water()
-    #test_three_sum()
+    #test_max_water()
+    test_three_sum()
     #test_sort_colors()
     print("\nAll tests passed!\n")
