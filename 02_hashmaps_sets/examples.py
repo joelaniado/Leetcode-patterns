@@ -110,7 +110,18 @@ def test_contains_duplicate():
 # =============================================================
  
 def is_anagram(s: str, t: str) -> bool:
-    pass  # your code here
+    s_map, t_map = {}, {}
+
+    if len(s) != len(t):
+        return False
+    for i in range(len(s)):
+        s_map[s[i]] = s_map.get(s[i], 0) + 1
+        t_map[t[i]] = t_map.get(t[i], 0) + 1
+    
+    return s_map == t_map
+
+        
+
  
  
 def test_is_anagram():
@@ -192,8 +203,8 @@ def test_longest_consecutive():
 # --- run all tests ---
 if __name__ == "__main__":
     #test_two_sum()
-    test_contains_duplicate()
-    #test_is_anagram()
+    #test_contains_duplicate()
+    test_is_anagram()
     #test_group_anagrams()
     #test_longest_consecutive()
     print("All tests passed!")
