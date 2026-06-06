@@ -72,7 +72,13 @@ def test_two_sum():
 # =============================================================
  
 def contains_duplicate(nums: list[int]) -> bool:
-    pass  # your code here
+    my_set = set()
+    for n in nums:
+        if n in my_set:
+            return True
+        else:
+            my_set.add(n)
+    return False
  
  
 def test_contains_duplicate():
@@ -185,8 +191,8 @@ def test_longest_consecutive():
  
 # --- run all tests ---
 if __name__ == "__main__":
-    test_two_sum()
-    #test_contains_duplicate()
+    #test_two_sum()
+    test_contains_duplicate()
     #test_is_anagram()
     #test_group_anagrams()
     #test_longest_consecutive()
