@@ -1,188 +1,183 @@
 
-# Two Pointer — Arrays: Core Patterns
- 
+# 01 · Arrays & Two Pointers
+
+## When to use
+- Input is sorted or can be sorted without breaking the problem
+- You need to find a pair or triplet that meets a condition
+- A nested loop O(n²) solution exists and you want to reduce it to O(n)
+- You need to modify an array in-place with O(1) space
+- The problem involves comparing elements from both ends (palindromes, containers)
+- The problem involves partitioning an array into regions
+
+## The core question to ask
+> Can I learn something useful by comparing the leftmost and rightmost elements?  
+> If moving a pointer in one direction makes the problem more or less solved  
+> in a predictable way, two pointers will work.
+
+## When it won't work
+- Unsorted array where you need exact pair matches → use a hash map instead
+- You need to track a window of elements → use sliding window
+- The decision of which pointer to move depends on future elements → use DP
+
 ---
- 
-## Mental Model
- 
-Two pointers work by **shrinking a search window** from both ends.
-Every iteration must move at least one pointer — if nothing moves, you have an infinite loop.
-Always ask: *what does each pointer represent, and what shrinks the window?*
- 
+
+## Complexity targets
+| Variant | Time | Space |
+|---|---|---|
+| Single pass (inward or fast/slow) | O(n) | O(1) |
+| Nested (e.g. three sum) | O(n²) | O(1) excl. output |
+
 ---
- 
-## 1. Uniqueness in Arrays
- 
-**Problem:** find unique elements in a flat or nested array.
- 
-**Key insight:** sets require hashable types. Lists are mutable → not hashable.
- 
+
+## Variants & core concepts
+
+### 1. Opposite end scan — Two sum (sorted)
+Start one pointer at each end. Move inward based on whether the
+current sum is too high or too low. Works because sorted order
+tells you which direction to move.
+
 ```python
-# Flat array — O(n) time, O(n) space
-unique = list(set(arr))
- 
-# Nested array — convert inner lists to tuples first
-unique = [list(x) for x in set(tuple(i) for i in arr)]
-# Time: O(n * k)  where k = length of inner array
-# Space: O(n * k)
- 
-# Never use this — O(n²)
-unique = [x for i, x in enumerate(arr) if x not in arr[:i]]
+left, right = 0, len(nums) - 1
+while left < right:
+    current_sum = nums[left] + nums[right]
+    if current_sum == target:
+        return (left, right)
+    elif current_sum < target:
+        left += 1
+    else:
+        right -= 1
 ```
- 
-**Watch out:** `numpy.unique()` sorts first → O(n log n), not O(n).
- 
+
 ---
- 
-## 2. Two Sum (Sorted Array)
- 
-**Problem:** find two numbers that sum to a target.
- 
-**Pattern:** left starts at 0, right starts at end. Move inward based on sum.
- 
+
+### 2. Slow / fast pointer — Remove duplicates
+Two pointers both start at the left but move at different speeds.
+Fast pointer scans every element. Slow pointer only advances when
+it finds something new — it marks the next write position.
+
 ```python
-def two_sum(nums, target):
-    left, right = 0, len(nums) - 1
+k = 1
+for right in range(1, len(nums)):
+    if nums[right] != nums[k - 1]:
+        nums[k] = nums[right]
+        k += 1
+return k
+```
+
+---
+
+### 3. Inward scan with skipping — Valid palindrome
+Pointers move inward from both ends but skip invalid characters.
+Pointers don't have to advance by exactly one step every iteration.
+Always guard inner skip loops with `left < right` to avoid index errors.
+
+```python
+left, right = 0, len(s) - 1
+while left < right:
+    while left < right and not s[left].isalnum():
+        left += 1
+    while left < right and not s[right].isalnum():
+        right -= 1
+    if s[left].lower() != s[right].lower():
+        return False
+    left += 1
+    right -= 1
+return True
+```
+
+---
+
+### 4. Greedy pointer movement — Container with most water
+Always move the pointer on the shorter line inward. Moving the
+taller one shrinks the width without any chance of increasing
+height — it can never improve the area. You are not proving the
+move will find the best answer; you are proving all remaining
+pairs with the shorter line are guaranteed to be worse.
+
+```python
+left, right = 0, len(heights) - 1
+max_area = 0
+while left < right:
+    max_area = max(max_area, min(heights[left], heights[right]) * (right - left))
+    if heights[left] < heights[right]:
+        left += 1
+    else:
+        right -= 1
+return max_area
+```
+
+---
+
+### 5. Two pointers inside an outer loop — Three sum
+Reduce a three-variable problem to a two-variable problem by
+fixing one element with an outer loop, then running two pointers
+on the remainder. Must sort first. Skip duplicates at both the
+outer level and the inner level after finding a valid triplet.
+
+```python
+nums.sort()
+result = []
+for i in range(len(nums)):
+    if i > 0 and nums[i] == nums[i - 1]:
+        continue
+    left, right = i + 1, len(nums) - 1
     while left < right:
-        s = nums[left] + nums[right]
-        if s == target:
-            return [left, right]
-        elif s < target:
+        total = nums[i] + nums[left] + nums[right]
+        if total == 0:
+            result.append([nums[i], nums[left], nums[right]])
+            while left < right and nums[left] == nums[left + 1]:
+                left += 1
+            while left < right and nums[right] == nums[right - 1]:
+                right -= 1
+            left += 1
+            right -= 1
+        elif total < 0:
             left += 1
         else:
             right -= 1
+return result
 ```
- 
-**Complexity:** O(n) time | O(1) space
-**Requires:** sorted input. If unsorted → sort first O(n log n) or use hashmap O(n).
- 
+
 ---
- 
-## 3. Three Sum
- 
-**Problem:** find all unique triplets that sum to zero.
- 
-**Pattern:** fix one element with outer loop, run two-pointer two sum on the rest.
-Think of it as: *2Sum on a sorted array, repeated n times.*
- 
+
+### 6. Three pointers / partitioning — Sort colors
+Three pointers divide the array into regions. `low` marks the
+boundary of 0s, `high` marks the boundary of 2s, `mid` scans
+forward. Each swap maintains the invariant of each region.
+Stop when `mid` and `high` cross. This is the foundation of
+quicksort's partition step.
+
 ```python
-def three_sum(nums):
-    nums.sort()
-    triplets = []
- 
-    for i in range(len(nums) - 2):
-        # skip duplicate fixed values
-        if i > 0 and nums[i] == nums[i - 1]:
-            continue
- 
-        left, right = i + 1, len(nums) - 1
-        while left < right:
-            check_sum = nums[i] + nums[left] + nums[right]
- 
-            if check_sum < 0:
-                left += 1
-            elif check_sum > 0:
-                right -= 1
-            else:
-                triplets.append([nums[i], nums[left], nums[right]])
-                # skip duplicates ONLY after a match
-                while left < right and nums[left] == nums[left + 1]:
-                    left += 1
-                while left < right and nums[right] == nums[right - 1]:
-                    right -= 1
-                left += 1
-                right -= 1
- 
-    return triplets
+low, mid, high = 0, 0, len(nums) - 1
+while mid <= high:
+    if nums[mid] == 0:
+        nums[low], nums[mid] = nums[mid], nums[low]
+        low += 1
+        mid += 1
+    elif nums[mid] == 1:
+        mid += 1
+    else:
+        nums[mid], nums[high] = nums[high], nums[mid]
+        high -= 1
 ```
- 
-**Complexity:** O(n log n) sort + O(n²) loop = **O(n²)** time | O(1) space
- 
-**The three jobs of the inner while loop:**
-| sum | action |
-|---|---|
-| too small | left++ |
-| too big | right-- |
-| zero | append, skip dupes, move both |
- 
-**Common bugs:**
-- Mixing duplicate skipping into `if/elif` conditions — keep it inside the `else` branch only
-- Breaking after first match — there may be multiple valid pairs per fixed element
-- Forgetting to advance both pointers after a match → infinite loop
+
 ---
- 
-## 4. Array Uniqueness — Nested (Big O Deep Dive)
- 
-| Approach | Time | Space | Notes |
-|---|---|---|---|
-| `set()` flat | O(n) | O(n) | lists not hashable |
-| `set(tuple())` nested | O(n·k) | O(n·k) | k = inner length |
-| `numpy.unique()` | O(n log n) | O(n) | sorts first |
-| Brute force `not in` | O(n²) | O(1) | never use |
- 
-**Why lists aren't hashable:** lists are mutable. Python refuses to hash mutable objects because the hash could change, breaking set/dict invariants. Tuples are immutable → hashable.
- 
+
+## Gotchas to remember
+- Always guard inner skip loops with a bounds check (`left < right`)
+- For three sum: sort first, skip duplicates at both levels
+- `pop(i)` is O(n) for any index except the last — avoid in two pointer solutions
+- The slow/fast pointer pattern modifies in-place — reassigning the list variable inside the function does nothing to the original
+- Equal height case in container with most water: moving either pointer is fine
+
 ---
- 
-## 5. Dutch National Flag (Sort Colors)
- 
-**Problem:** sort array of 0s, 1s, 2s in-place in one pass.
- 
-**Pattern:** three pointers — low, mid, high. Mid scans forward, 
-low tracks end of 0-region, high tracks start of 2-region.
- 
-```python
-def sort_colors(nums):
-    low, mid, high = 0, 0, len(nums) - 1
- 
-    while mid <= high:
-        if nums[mid] == 0:
-            nums[mid], nums[low] = nums[low], nums[mid]
-            low += 1
-            mid += 1       # safe — low region already processed
-        elif nums[mid] == 1:
-            mid += 1
-        else:              # nums[mid] == 2
-            nums[mid], nums[high] = nums[high], nums[mid]
-            high -= 1
-            # do NOT mid++ — incoming value from high is unknown
- 
-```
- 
-**Complexity:** O(n) time | O(1) space
- 
-**The three regions:**
-```
-[ 0s | 1s | unsorted | 2s ]
-       ^low  ^mid      ^high
-```
- 
-**Why it's O(n) even when mid stalls:**
-Every iteration shrinks the unsorted region by 1 — either `mid` advances (left shrink) or `high` retreats (right shrink). They can only move toward each other → at most n iterations total.
- 
-**Why mid doesn't advance after swapping with high:**
-The value coming from `high` is unknown — it hasn't been examined yet. After swapping with `low`, the incoming value was already in the processed region, so it's safe to advance.
- 
- 
-## Universal Two Pointer Checklist
- 
-Before writing any two pointer solution, answer these:
- 
-1. **Does the array need to be sorted?** If yes, sort first (adds O(n log n))
-2. **Where do pointers start?** (both ends vs one fixed + two moving)
-3. **What moves each pointer?** (one condition per pointer — keep them independent)
-4. **What's the termination condition?** (`left < right` or `mid <= high`)
-5. **Are there duplicates to handle?** Skip AFTER processing, not before
-6. **Does every iteration shrink the window?** If not, you have an infinite loop
----
- 
-## Complexity Cheat Sheet
- 
-| Problem | Time | Space |
+
+## LeetCode problems to revisit
+| Problem | Difficulty | Pattern |
 |---|---|---|
-| Unique flat array | O(n) | O(n) |
-| Unique nested array | O(n·k) | O(n·k) |
-| Two Sum (sorted) | O(n) | O(1) |
-| Three Sum | O(n²) | O(1) |
-| Dutch National Flag | O(n) | O(1) |
-| Python swap | O(1) | O(1) |
+| Two Sum II | Easy | Opposite end scan |
+| Remove Duplicates from Sorted Array | Easy | Slow / fast pointer |
+| Valid Palindrome | Easy | Inward scan with skipping |
+| Container With Most Water | Medium | Greedy pointer movement |
+| 3Sum | Medium | Two pointers in outer loop |
+| Sort Colors | Medium | Three pointer partitioning |
