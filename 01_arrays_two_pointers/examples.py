@@ -191,7 +191,6 @@ def three_sum(nums: list[int]) -> list[list[int]]:
     for i in range(len(nums)):
         if i > 0 and nums[i] == nums[i -1]:
             continue
-
         left, right = i + 1, len(nums)-1
         while left < right:
             check_sum = nums[i] + nums[left] + nums[right] 
@@ -234,8 +233,18 @@ def test_three_sum():
 # =============================================================
  
 def sort_colors(nums: list[int]) -> None:
-    pass  # your code here (modifies nums in-place, returns None)
- 
+    low, mid, high = 0, 0, len(nums) - 1
+    while mid <= high:
+        if nums[mid] == 1:
+            mid +=1
+        elif nums[mid] == 0:
+            nums[mid], nums[low] = nums[low], nums[mid]
+            low += 1
+            mid += 1
+        else:
+            nums[mid], nums[high] = nums[high], nums[mid]
+            high -= 1
+        
  
 def test_sort_colors():
     nums = [2, 0, 2, 1, 1, 0]
@@ -267,6 +276,6 @@ if __name__ == "__main__":
     #test_remove_duplicates()
     #test_is_palindrome()
     #test_max_water()
-    test_three_sum()
-    #test_sort_colors()
+    #test_three_sum()
+    test_sort_colors()
     print("\nAll tests passed!\n")
