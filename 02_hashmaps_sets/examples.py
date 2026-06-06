@@ -121,9 +121,6 @@ def is_anagram(s: str, t: str) -> bool:
     return s_map == t_map
 
         
-
- 
- 
 def test_is_anagram():
     assert is_anagram("anagram", "nagaram") == True
     assert is_anagram("rat", "car") == False
@@ -154,7 +151,16 @@ def test_is_anagram():
 # =============================================================
  
 def group_anagrams(strs: list[str]) -> list[list[str]]:
-    pass  # your code here
+    hashmap = {}
+    # hashmap = defaultdict(list)
+    for word in strs:
+        key = tuple(sorted(word))
+        #hashmap[key].append(word)
+        hashmap[key] = hashmap.get(key,[]) + [word]
+    return list(hashmap.values())
+
+
+
  
  
 def test_group_anagrams():
@@ -204,8 +210,8 @@ def test_longest_consecutive():
 if __name__ == "__main__":
     #test_two_sum()
     #test_contains_duplicate()
-    test_is_anagram()
-    #test_group_anagrams()
+    #test_is_anagram()
+    test_group_anagrams()
     #test_longest_consecutive()
     print("All tests passed!")
  
