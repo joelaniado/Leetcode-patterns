@@ -159,10 +159,6 @@ def group_anagrams(strs: list[str]) -> list[list[str]]:
         hashmap[key] = hashmap.get(key,[]) + [word]
     return list(hashmap.values())
 
-
-
- 
- 
 def test_group_anagrams():
     result = group_anagrams(["eat", "tea", "tan", "ate", "nat", "bat"])
     result_sorted = sorted([sorted(g) for g in result])
